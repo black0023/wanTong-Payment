@@ -21,8 +21,8 @@
             </div>
             <div class="mb-9">
               <p class="text-center text-4xl font-bold">{{ $GIN_VUE_ADMIN.appName }}</p>
-              <p class="text-center text-sm font-normal text-gray-500 mt-2.5">A management platform using Golang and Vue
-              </p>
+<!--              <p class="text-center text-sm font-normal text-gray-500 mt-2.5">A management platform using Golang and Vue
+              </p>-->
             </div>
             <el-form
               ref="loginForm"
@@ -105,7 +105,7 @@
       ></div>
     </div>
 
-    <BottomInfo class="left-0 right-0 absolute bottom-3 mx-auto  w-full z-20">
+<!--    <BottomInfo class="left-0 right-0 absolute bottom-3 mx-auto  w-full z-20">
       <div class="links items-center justify-center gap-2 hidden md:flex">
         <a
           href="http://doc.henrongyi.top/"
@@ -148,7 +148,7 @@
           >
         </a>
       </div>
-    </BottomInfo>
+    </BottomInfo>-->
   </div>
 </template>
 
