@@ -12,7 +12,7 @@ autocode:
     server-api: /api/v1/%s
     server-plug: /plugin/%s
     server-initialize: /initialize
-    root: /Users/james/DEV/WT/wanTong-Payment
+    root: /Users/zhuangchengjie/DEV/BlackRepo/wanTong-Payment
     web-table: /view
     web: /web/src
     server-service: /service/%s
@@ -85,7 +85,7 @@ hua-wei-obs:
     access-key: you-access-key
     secret-key: you-secret-key
 jwt:
-    signing-key: 56305521-e6d5-45c0-b0ab-ba5ad021c527
+    signing-key: dfb0e87e-1f74-4e88-9d2d-9ac188ba4a36
     expires-time: 7d
     buffer-time: 1d
     issuer: qmPlus
