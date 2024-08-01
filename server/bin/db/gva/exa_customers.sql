@@ -14,3 +14,4 @@ create table exa_customers
 create index idx_exa_customers_deleted_at
     on exa_customers (deleted_at);
 
+INSERT INTO gva.exa_customers (id, created_at, updated_at, deleted_at, customer_name, customer_phone_data, sys_user_id, sys_user_authority_id) VALUES (1, '2024-08-01 15:24:37.977', '2024-08-01 15:24:37.977', null, '1', '1', 1, 888);

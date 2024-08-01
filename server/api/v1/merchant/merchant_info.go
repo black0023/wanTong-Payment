@@ -47,9 +47,11 @@ func (merchantInfoApi *MerchantInfoApi) CreateMerchantInfo(c *gin.Context) {
 
 	merchantInfo.MchNo = mchNo
 	merchantInfo.Password = utils.BcryptHash("Aa123456")
-	merchantInfo.ApiKey = "fuck you"
+	merchantInfo.ApiKey = payCommon.CreateMerchantKey(mchNo, merchantInfo.MchAcc)
 	merchantInfo.Balance = &baseBalance
 	merchantInfo.Enable = &baseEnable
+
+	// todo 创建sys_user账号
 
 	if err := merchantInfoService.CreateMerchantInfo(&merchantInfo); err != nil {
 		global.GVA_LOG.Error("创建失败!", zap.Error(err))
