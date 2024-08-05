@@ -54,14 +54,14 @@
       >
         <el-table-column type="selection" width="55"/>
 
-        <el-table-column align="left" label="日期" width="180">
-          <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
-        </el-table-column>
 
         <el-table-column align="left" label="模板名称" prop="template_name" width="150"/>
         <el-table-column align="left" label="商户号" prop="mch_no" width="150"/>
         <el-table-column align="left" label="商户名" prop="mch_acc" width="150"/>
         <el-table-column align="left" label="AppId" prop="app_id" width="150"/>
+        <el-table-column align="left" label="创建时间" width="180">
+          <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
+        </el-table-column>
         <el-table-column align="left" label="操作" fixed="right" min-width="240">
           <template #default="scope">
             <el-button type="primary" link icon="edit" class="table-button" @click="updatePayTemplateFunc(scope.row)">

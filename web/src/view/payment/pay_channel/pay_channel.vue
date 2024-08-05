@@ -19,17 +19,24 @@
                           :disabled-date="time=> searchInfo.startCreatedAt ? time.getTime() < searchInfo.startCreatedAt.getTime() : false"></el-date-picker>
         </el-form-item>
 
-        <el-form-item label="产品名称" prop="pay_name">
-          <el-input v-model="searchInfo.pay_name" placeholder="搜索条件"/>
+        <el-form-item label="通道名称" prop="channel_name">
+          <el-input v-model="searchInfo.channel_name" placeholder="搜索条件"/>
 
         </el-form-item>
-        <el-form-item label="产品编码" prop="pay_code">
-          <el-input v-model="searchInfo.pay_code" placeholder="搜索条件"/>
-
+        <el-form-item label="支付产品" prop="product_id">
+          <el-select v-model="searchInfo.product_id" placeholder="请选择支付产品" :clearable="true">
+            <el-option v-for="(item,key) in payProductList" :key="key" :label="item.pay_code+'-'+item.pay_name"
+                       :value="item.ID"/>
+          </el-select>
         </el-form-item>
-        <el-form-item label="启用" prop="enable">
-
-          <el-input v-model.number="searchInfo.enable" placeholder="搜索条件"/>
+        <el-form-item label="通道模板" prop="template_id">
+          <el-select v-model="searchInfo.template_id" placeholder="请选择通道模板" :clearable="true">
+            <el-option v-for="(item,key) in payTemplateList" :key="key" :label="item.mch_no+'-'+item.template_name"
+                       :value="item.ID"/>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="支付编码" prop="payment_code">
+          <el-input v-model="searchInfo.payment_code" placeholder="搜索条件"/>
 
         </el-form-item>
         <el-form-item>
@@ -55,10 +62,16 @@
       >
         <el-table-column type="selection" width="55"/>
 
-        <el-table-column align="left" label="产品名称" prop="pay_name" width="200"/>
-        <el-table-column align="left" label="产品编码" prop="pay_code" width="150"/>
+        <el-table-column align="left" label="通道名称" prop="channel_name" width="120"/>
+        <el-table-column align="left" label="支付通道" width="200">
+          <template #default="scope">{{ getPayProductNameById(scope.row.product_id) }}</template>
+        </el-table-column>
+        <el-table-column align="left" label="通道模板" prop="template_id" width="250">
+          <template #default="scope">{{ getPayTemplateNameById(scope.row.template_id) }}</template>
+        </el-table-column>
+        <el-table-column align="left" label="支付编码" prop="payment_code" width="120"/>
+        <el-table-column align="left" label="金额范围" prop="amount_range" width="120"/>
         <el-table-column align="left" label="通道费率(%)" prop="fee" width="120"/>
-        <el-table-column align="left" label="通道数量" prop="channel_count" width="80"/>
         <el-table-column align="left" label="启用" prop="enable" width="80">
           <template #default="scope">
             <el-switch
@@ -66,16 +79,17 @@
                 inline-prompt
                 :active-value="1"
                 :inactive-value="2"
-                @change="()=>{updatePayProductRow(scope.row)}"
+                @change="()=>{updatePayChannelRow(scope.row)}"
             />
           </template>
         </el-table-column>
+        <el-table-column align="left" label="备注" prop="remark" width="120"/>
         <el-table-column align="left" label="创建时间" width="180">
           <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
         <el-table-column align="left" label="操作" fixed="right" min-width="240">
           <template #default="scope">
-            <el-button type="primary" link icon="edit" class="table-button" @click="updatePayProductFunc(scope.row)">
+            <el-button type="primary" link icon="edit" class="table-button" @click="updatePayChannelFunc(scope.row)">
               变更
             </el-button>
             <el-button type="primary" link icon="delete" @click="deleteRow(scope.row)">删除</el-button>
@@ -106,11 +120,26 @@
       </template>
 
       <el-form :model="formData" label-position="top" ref="elFormRef" :rules="rule" label-width="80px">
-        <el-form-item label="产品名称:" prop="pay_name">
-          <el-input v-model="formData.pay_name" :clearable="true" placeholder="请输入产品名称"/>
+        <el-form-item label="通道名称:" prop="channel_name">
+          <el-input v-model="formData.channel_name" :clearable="true" placeholder="请输入通道名称"/>
         </el-form-item>
-        <el-form-item label="产品编码:" prop="pay_code">
-          <el-input v-model="formData.pay_code" :clearable="true" placeholder="请输入产品编码"/>
+        <el-form-item label="支付产品:" prop="product_id">
+          <el-select v-model="formData.product_id" placeholder="请选择支付产品" style="width:100%" :clearable="true">
+            <el-option v-for="(item,key) in payProductList" :key="key" :label="item.pay_code+'-'+item.pay_name"
+                       :value="item.ID.toString()"/>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="通道模板:" prop="template_id">
+          <el-select v-model="formData.template_id" placeholder="请选择通道模板" style="width:100%" :clearable="true">
+            <el-option v-for="(item,key) in payTemplateList" :key="key" :label="item.mch_no+'-'+item.template_name"
+                       :value="item.ID.toString()"/>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="支付编码:" prop="payment_code">
+          <el-input v-model="formData.payment_code" :clearable="true" placeholder="请输入支付编码"/>
+        </el-form-item>
+        <el-form-item label="金额范围:" prop="amount_range">
+          <el-input v-model="formData.amount_range" :clearable="true" placeholder="请输入金额范围"/>
         </el-form-item>
         <el-form-item label="通道费率(%):" prop="fee">
           <el-input-number v-model="formData.fee" style="width:100%" :precision="2" :clearable="true"/>
@@ -126,6 +155,9 @@
               :inactive-value="2"
           />
         </el-form-item>
+        <el-form-item label="备注:" prop="remark">
+          <el-input v-model="formData.remark" :clearable="true" placeholder="请输入备注"/>
+        </el-form-item>
       </el-form>
     </el-drawer>
   </div>
@@ -133,13 +165,21 @@
 
 <script setup>
 import {
-  createPayProduct,
-  deletePayProduct,
-  deletePayProductByIds,
-  updatePayProduct,
-  findPayProduct,
-  getPayProductList
+  createPayChannel,
+  deletePayChannel,
+  deletePayChannelByIds,
+  updatePayChannel,
+  findPayChannel,
+  getPayChannelList,
+} from '@/api/payment/pay_channel'
+
+import {
+  getPayProductList, updatePayProduct
 } from '@/api/payment/pay_product'
+
+import {
+  getPayTemplateList
+} from '@/api/payment/pay_template'
 
 // 全量引入格式化工具 请按需保留
 import {
@@ -155,22 +195,26 @@ import {ElMessage, ElMessageBox} from 'element-plus'
 import {ref, reactive} from 'vue'
 
 defineOptions({
-  name: 'PayProduct'
+  name: 'PayChannel'
 })
 
 // 自动化生成的字典（可能为空）以及字段
 const formData = ref({
-  pay_name: '',
-  pay_code: '',
-  enable: 0,
+  channel_name: '',
+  product_id: '',
+  template_id: '',
+  payment_code: '',
+  amount_range: '',
+  fee: 0,
+  remark: '',
 })
 
 
 // 验证规则
 const rule = reactive({
-  pay_name: [{
+  channel_name: [{
     required: true,
-    message: '请输入正确的产品名称',
+    message: '',
     trigger: ['input', 'blur'],
   },
     {
@@ -179,9 +223,21 @@ const rule = reactive({
       trigger: ['input', 'blur'],
     }
   ],
-  pay_code: [{
+  product_id: [{
     required: true,
-    message: '请输入正确的产品编码',
+    message: '请选择支付产品',
+    trigger: ['input', 'blur'],
+  },
+  ],
+  template_id: [{
+    required: true,
+    message: '请选择通道模板',
+    trigger: ['input', 'blur'],
+  },
+  ],
+  payment_code: [{
+    required: true,
+    message: '请输入支付编码',
     trigger: ['input', 'blur'],
   },
     {
@@ -219,6 +275,8 @@ const total = ref(0)
 const pageSize = ref(10)
 const tableData = ref([])
 const searchInfo = ref({})
+const payProductList = ref([])
+const payTemplateList = ref([])
 
 // 重置
 const onReset = () => {
@@ -248,9 +306,29 @@ const handleCurrentChange = (val) => {
   getTableData()
 }
 
+const getPayProductNameById = (id) => {
+  for (let i = 0; i < payProductList.value.length; i++) {
+    let product = payProductList.value[i];
+    if (product.ID == id) {
+      return product.pay_code + "-" + product.pay_name;
+    }
+  }
+  return id;
+}
+
+const getPayTemplateNameById = (id) => {
+  for (let i = 0; i < payTemplateList.value.length; i++) {
+    let template = payTemplateList.value[i];
+    if (template.ID == id) {
+      return template.mch_no + "-" + template.template_name;
+    }
+  }
+  return id;
+}
+
 // 查询
 const getTableData = async () => {
-  const table = await getPayProductList({page: page.value, pageSize: pageSize.value, ...searchInfo.value})
+  const table = await getPayChannelList({page: page.value, pageSize: pageSize.value, ...searchInfo.value})
   if (table.code === 0) {
     tableData.value = table.data.list
     total.value = table.data.total
@@ -259,6 +337,22 @@ const getTableData = async () => {
   }
 }
 
+const getPayProductDataList = async () => {
+  const table = await getPayProductList({page: 0, pageSize: 100})
+  if (table.code === 0) {
+    payProductList.value = table.data.list
+  }
+}
+
+const getPayTemplateDataList = async () => {
+  const table = await getPayTemplateList({page: 0, pageSize: 100})
+  if (table.code === 0) {
+    payTemplateList.value = table.data.list
+  }
+}
+
+getPayProductDataList()
+getPayTemplateDataList()
 getTableData()
 
 // ============== 表格控制部分结束 ===============
@@ -285,7 +379,7 @@ const deleteRow = (row) => {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(() => {
-    deletePayProductFunc(row)
+    deletePayChannelFunc(row)
   })
 }
 
@@ -308,7 +402,7 @@ const onDelete = async () => {
     multipleSelection.value.map(item => {
       IDs.push(item.ID)
     })
-    const res = await deletePayProductByIds({IDs})
+    const res = await deletePayChannelByIds({IDs})
     if (res.code === 0) {
       ElMessage({
         type: 'success',
@@ -326,17 +420,17 @@ const onDelete = async () => {
 const type = ref('')
 
 // 更新行
-const updatePayProductFunc = async (row) => {
-  const res = await findPayProduct({ID: row.ID})
+const updatePayChannelFunc = async (row) => {
+  const res = await findPayChannel({ID: row.ID})
   type.value = 'update'
   if (res.code === 0) {
-    formData.value = res.data.repay_product
+    formData.value = res.data.repay_channel
     dialogFormVisible.value = true
   }
 }
 
-const updatePayProductRow = async (row) => {
-  let res = await updatePayProduct(row)
+const updatePayChannelRow = async (row) => {
+  let res = await updatePayChannel(row)
   if (res.code === 0) {
     let desc = row.enable === 1 ? "启用" : "禁用";
     ElMessage({
@@ -347,8 +441,8 @@ const updatePayProductRow = async (row) => {
 }
 
 // 删除行
-const deletePayProductFunc = async (row) => {
-  const res = await deletePayProduct({ID: row.ID})
+const deletePayChannelFunc = async (row) => {
+  const res = await deletePayChannel({ID: row.ID})
   if (res.code === 0) {
     ElMessage({
       type: 'success',
@@ -374,9 +468,13 @@ const openDialog = () => {
 const closeDialog = () => {
   dialogFormVisible.value = false
   formData.value = {
-    pay_name: '',
-    pay_code: '',
-    enable: 0,
+    channel_name: '',
+    product_id: 0,
+    template_id: 0,
+    payment_code: '',
+    amount_range: '',
+    fee: 0,
+    remark: '',
   }
 }
 // 弹窗确定
@@ -386,13 +484,13 @@ const enterDialog = async () => {
     let res
     switch (type.value) {
       case 'create':
-        res = await createPayProduct(formData.value)
+        res = await createPayChannel(formData.value)
         break
       case 'update':
-        res = await updatePayProduct(formData.value)
+        res = await updatePayChannel(formData.value)
         break
       default:
-        res = await createPayProduct(formData.value)
+        res = await createPayChannel(formData.value)
         break
     }
     if (res.code === 0) {

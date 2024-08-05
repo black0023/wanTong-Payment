@@ -89,6 +89,7 @@ func Routers() *gin.Engine {
 		paymentRouter := router.RouterGroupApp.Payment
 		paymentRouter.InitPayProductRouter(PrivateGroup, PublicGroup)
 		paymentRouter.InitPayTemplateRouter(PrivateGroup, PublicGroup)
+		paymentRouter.InitPayChannelRouter(PrivateGroup, PublicGroup)
 
 	}
 
