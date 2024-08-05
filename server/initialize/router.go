@@ -88,6 +88,8 @@ func Routers() *gin.Engine {
 	{
 		paymentRouter := router.RouterGroupApp.Payment
 		paymentRouter.InitPayProductRouter(PrivateGroup, PublicGroup)
+		paymentRouter.InitPayTemplateRouter(PrivateGroup, PublicGroup)
+
 	}
 
 	global.GVA_LOG.Info("router register success")
