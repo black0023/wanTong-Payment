@@ -6,14 +6,12 @@ import (
 	
 )
 
-type MerchantInfoSearch struct{
+type AgencyInfoSearch struct{
     
         StartCreatedAt *time.Time `json:"startCreatedAt" form:"startCreatedAt"`
         EndCreatedAt   *time.Time `json:"endCreatedAt" form:"endCreatedAt"`
     
-                      MchNo  string `json:"mch_no" form:"mch_no" `
-                      MchAcc  string `json:"mch_acc" form:"mch_acc" `
+                      Account  string `json:"account" form:"account" `
                       NickName  string `json:"nick_name" form:"nick_name" `
-                      AgencyId  string `json:"agency_id" form:"agency_id" `
     request.PageInfo
 }

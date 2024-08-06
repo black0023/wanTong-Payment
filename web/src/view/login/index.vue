@@ -14,8 +14,8 @@
             <div class="flex items-center justify-center">
 
               <img
-                class="w-24"
-                :src="$GIN_VUE_ADMIN.appLogo"
+                class="w-52"
+                src="@/assets/logo.png"
                 alt
               >
             </div>

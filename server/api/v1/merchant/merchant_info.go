@@ -7,7 +7,6 @@ import (
 	merchantReq "github.com/flipped-aurora/gin-vue-admin/server/model/merchant/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/payCommon"
 	"github.com/flipped-aurora/gin-vue-admin/server/service"
-	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -42,16 +41,9 @@ func (merchantInfoApi *MerchantInfoApi) CreateMerchantInfo(c *gin.Context) {
 		}
 	}
 
-	baseEnable := true
-	baseBalance := 0.0
-
 	merchantInfo.MchNo = mchNo
-	merchantInfo.Password = utils.BcryptHash("Aa123456")
+	// merchantInfo.Password = utils.BcryptHash("Aa123456")
 	merchantInfo.ApiKey = payCommon.CreateMerchantKey(mchNo, merchantInfo.MchAcc)
-	merchantInfo.Balance = &baseBalance
-	merchantInfo.Enable = &baseEnable
-
-	// todo 创建sys_user账号
 
 	if err := merchantInfoService.CreateMerchantInfo(&merchantInfo); err != nil {
 		global.GVA_LOG.Error("创建失败!", zap.Error(err))
@@ -59,6 +51,20 @@ func (merchantInfoApi *MerchantInfoApi) CreateMerchantInfo(c *gin.Context) {
 	} else {
 		response.OkWithMessage("创建成功", c)
 	}
+}
+
+func (merchantInfoApi *MerchantInfoApi) RefreshMerchantApiKey(c *gin.Context) {
+	ID := c.Query("mchNo")
+	merchantInfo, findErr := merchantInfoService.GetMerchantInfoByMchNo(ID)
+	if findErr != nil {
+		response.FailWithMessage(findErr.Error(), c)
+		return
+	}
+
+	apiKey := payCommon.CreateMerchantKey(merchantInfo.MchNo, merchantInfo.MchAcc)
+	respPacket := make(map[string]interface{})
+	respPacket["apiKey"] = apiKey
+	response.OkWithDetailed(respPacket, "刷新成功", c)
 }
 
 // DeleteMerchantInfo 删除商户信息

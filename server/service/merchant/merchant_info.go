@@ -44,9 +44,16 @@ func (merchantInfoService *MerchantInfoService) GetMerchantInfo(ID string) (merc
 	return
 }
 
+func (merchantInfoService *MerchantInfoService) GetMerchantInfoByMchNo(mchNo string) (merchantInfo merchant.MerchantInfo, err error) {
+	err = global.GVA_DB.Where("mch_no = ?", mchNo).First(&merchantInfo).Error
+	return
+}
+
 func (merchantInfoService *MerchantInfoService) GetMerchantInfoCountByMchNo(mchNo string) int {
 	mchCount := int64(0)
-	global.GVA_DB.Where("mch_no = ?", mchNo).Count(&mchCount)
+	db := global.GVA_DB.Model(&merchant.MerchantInfo{})
+	db = db.Where("mch_no = ?", mchNo)
+	_ = db.Count(&mchCount).Error
 	return int(mchCount)
 }
 
@@ -70,6 +77,9 @@ func (merchantInfoService *MerchantInfoService) GetMerchantInfoInfoList(info mer
 	}
 	if info.NickName != "" {
 		db = db.Where("nick_name LIKE ?", "%"+info.NickName+"%")
+	}
+	if info.AgencyId != "" {
+		db = db.Where("agency_id = ?", info.AgencyId)
 	}
 	err = db.Count(&total).Error
 	if err != nil {

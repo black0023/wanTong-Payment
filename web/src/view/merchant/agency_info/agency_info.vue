@@ -19,23 +19,13 @@
                           :disabled-date="time=> searchInfo.startCreatedAt ? time.getTime() < searchInfo.startCreatedAt.getTime() : false"></el-date-picker>
         </el-form-item>
 
-        <el-form-item label="商户号" prop="mch_no">
-          <el-input v-model="searchInfo.mch_no" placeholder="搜索条件"/>
+        <el-form-item label="代理账号" prop="account">
+          <el-input v-model="searchInfo.account" placeholder="搜索条件" />
 
         </el-form-item>
-        <el-form-item label="商户账号" prop="mch_acc">
-          <el-input v-model="searchInfo.mch_acc" placeholder="搜索条件"/>
+        <el-form-item label="代理昵称" prop="nick_name">
+          <el-input v-model="searchInfo.nick_name" placeholder="搜索条件" />
 
-        </el-form-item>
-        <el-form-item label="昵称" prop="nick_name">
-          <el-input v-model="searchInfo.nick_name" placeholder="搜索条件"/>
-
-        </el-form-item>
-        <el-form-item label="上级代理" prop="agency_id">
-          <el-select v-model="searchInfo.agency_id" placeholder="请选择上级代理" :clearable="true">
-            <el-option v-for="(item,key) in agencyList" :key="key" :label="item.account+'-'+item.nick_name"
-                       :value="item.ID"/>
-          </el-select>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" icon="search" @click="onSubmit">查询</el-button>
@@ -60,13 +50,8 @@
       >
         <el-table-column type="selection" width="55"/>
 
-        <el-table-column align="left" label="商户号" prop="mch_no" width="120"/>
-        <el-table-column align="left" label="商户账号" prop="mch_acc" width="120"/>
-        <el-table-column align="left" label="昵称" prop="nick_name" width="120"/>
-        <el-table-column align="left" label="上级代理" prop="agency_id" width="120">
-          <template #default="scope">{{ getMerchantAgencyNameById(scope.row.agency_id) }}</template>
-        </el-table-column>
-        <el-table-column align="left" label="备注" prop="remark" width="120"/>
+        <el-table-column align="left" label="代理账号" prop="account" width="120"/>
+        <el-table-column align="left" label="代理昵称" prop="nick_name" width="120"/>
         <el-table-column align="left" label="余额" prop="balance" width="120"/>
         <el-table-column align="left" label="启用" prop="enable" width="80">
           <template #default="scope">
@@ -75,21 +60,16 @@
                 inline-prompt
                 :active-value="1"
                 :inactive-value="2"
-                @change="()=>{updateMerchantInfoRow(scope.row)}"
+                @change="()=>{updateAgencyInfoRow(scope.row)}"
             />
           </template>
         </el-table-column>
-        <el-table-column align="left" label="最后登录" width="180">
-          <template #default="scope">{{ formatDate(scope.row.last_login) }}</template>
-        </el-table-column>
-        <el-table-column align="left" label="登录IP" prop="login_ip" width="120"/>
-
-        <el-table-column align="left" label="创建时间" width="180">
+        <el-table-column align="left" label="创建日期" width="180">
           <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
         <el-table-column align="left" label="操作" fixed="right" min-width="240">
           <template #default="scope">
-            <el-button type="primary" link icon="edit" class="table-button" @click="updateMerchantInfoFunc(scope.row)">
+            <el-button type="primary" link icon="edit" class="table-button" @click="updateAgencyInfoFunc(scope.row)">
               变更
             </el-button>
             <el-button type="primary" link icon="delete" @click="deleteRow(scope.row)">删除</el-button>
@@ -120,43 +100,26 @@
       </template>
 
       <el-form :model="formData" label-position="top" ref="elFormRef" :rules="rule" label-width="80px">
-        <el-form-item label="商户号:" prop="mch_no" v-if="type!=='create'">
-          <el-input disabled v-model="formData.mch_no" :clearable="true" placeholder="请输入商户号"/>
+        <el-form-item label="代理账号:" prop="account">
+          <el-input v-model="formData.account" :clearable="true" placeholder="请输入代理账号"/>
         </el-form-item>
-        <el-form-item label="商户账号:" prop="mch_acc">
-          <el-input v-model="formData.mch_acc" :disabled="type!=='create'" :clearable="true"
-                    placeholder="请输入商户账号"/>
+        <el-form-item label="代理昵称:" prop="nick_name">
+          <el-input v-model="formData.nick_name" :clearable="true" placeholder="请输入代理昵称"/>
         </el-form-item>
         <el-form-item
-            v-if="type==='create'"
+            v-if="type === 'create'"
             label="密码"
             prop="password"
         >
-          <el-input v-model="formData.password" :clearable="true"/>
-        </el-form-item>
-        <el-form-item label="昵称:" prop="nick_name">
-          <el-input v-model="formData.nick_name" :clearable="true" placeholder="请输入昵称"/>
-        </el-form-item>
-        <el-form-item label="上级代理:" prop="agency_id">
-          <el-select v-model="formData.agency_id" :disabled="type!=='create'"
-                     placeholder="请选择上级代理" style="width:100%" :clearable="true">
-            <el-option v-for="(item,key) in agencyList" :key="key" :label="item.account+'-'+item.nick_name"
-                       :value="item.ID.toString()"/>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="备注:" prop="remark">
-          <el-input v-model="formData.remark" :clearable="true" placeholder="请输入备注"/>
-        </el-form-item>
-        <el-form-item label="Api秘钥:" prop="api_key" v-if="type!=='create'">
-          <div class="flex w-full gap-4">
-            <el-input disabled v-model="formData.api_key" :clearable="true" placeholder="请输入Api秘钥"></el-input>
-            <el-button type="primary" @click="refreshMerchantInfoApiKey(formData)">刷 新</el-button>
-          </div>
+          <el-input v-model="formData.password"/>
         </el-form-item>
         <el-form-item label="余额:" prop="balance">
           <el-input-number v-model="formData.balance" style="width:100%" :precision="2" :clearable="true"/>
         </el-form-item>
-        <el-form-item label="启用:" prop="enable">
+        <el-form-item
+            label="启用:"
+            prop="enable"
+        >
           <el-switch
               v-model="formData.enable"
               inline-prompt
@@ -171,18 +134,13 @@
 
 <script setup>
 import {
-  createMerchantInfo,
-  deleteMerchantInfo,
-  deleteMerchantInfoByIds,
-  updateMerchantInfo,
-  findMerchantInfo,
-  getMerchantInfoList,
-  refreshMerchantApiKey
-} from '@/api/merchant/merchant_info'
-
-import {
+  createAgencyInfo,
+  deleteAgencyInfo,
+  deleteAgencyInfoByIds,
+  updateAgencyInfo,
+  findAgencyInfo,
   getAgencyInfoList
-} from "@/api/merchant/agency_info";
+} from '@/api/merchant/agency_info'
 
 // 全量引入格式化工具 请按需保留
 import {
@@ -196,45 +154,27 @@ import {
 } from '@/utils/format'
 import {ElMessage, ElMessageBox} from 'element-plus'
 import {ref, reactive} from 'vue'
-import {getPayProductList} from "@/api/payment/pay_product";
 import {updatePayChannel} from "@/api/payment/pay_channel";
 
 defineOptions({
-  name: 'MerchantInfo'
+  name: 'AgencyInfo'
 })
 
 // 自动化生成的字典（可能为空）以及字段
 const formData = ref({
-  mch_no: '',
-  mch_acc: '',
+  account: '',
   nick_name: '',
-  agency_id: '',
-  remark: '',
-  api_key: '',
-  balance: 0,
-  enable: 1,
-  last_login: null,
-  login_ip: '',
   password: '',
+  balance: 0,
+  enable: 0,
 })
 
 
 // 验证规则
 const rule = reactive({
-  mch_no: [{
+  account: [{
     required: true,
-    message: '',
-    trigger: ['input', 'blur'],
-  },
-    {
-      whitespace: true,
-      message: '不能只输入空格',
-      trigger: ['input', 'blur'],
-    }
-  ],
-  mch_acc: [{
-    required: true,
-    message: '',
+    message: '请输入代理账号',
     trigger: ['input', 'blur'],
   },
     {
@@ -245,7 +185,7 @@ const rule = reactive({
   ],
   nick_name: [{
     required: true,
-    message: '',
+    message: '请输入代理昵称',
     trigger: ['input', 'blur'],
   },
     {
@@ -256,7 +196,7 @@ const rule = reactive({
   ],
   password: [{
     required: true,
-    message: '',
+    message: '请输入密码',
     trigger: ['input', 'blur'],
   },
     {
@@ -265,16 +205,11 @@ const rule = reactive({
       trigger: ['input', 'blur'],
     }
   ],
-  agency_id: [{
+  enable: [{
     required: true,
     message: '',
     trigger: ['input', 'blur'],
   },
-    {
-      whitespace: true,
-      message: '不能只输入空格',
-      trigger: ['input', 'blur'],
-    }
   ],
 })
 
@@ -306,8 +241,6 @@ const pageSize = ref(10)
 const tableData = ref([])
 const searchInfo = ref({})
 
-const agencyList = ref([]);
-
 // 重置
 const onReset = () => {
   searchInfo.value = {}
@@ -320,9 +253,6 @@ const onSubmit = () => {
     if (!valid) return
     page.value = 1
     pageSize.value = 10
-    if (searchInfo.value.enable === "") {
-      searchInfo.value.enable = null
-    }
     getTableData()
   })
 }
@@ -339,19 +269,9 @@ const handleCurrentChange = (val) => {
   getTableData()
 }
 
-const getMerchantAgencyNameById = (id) => {
-  for (let i = 0; i < agencyList.value.length; i++) {
-    let agencyInfo = agencyList.value[i];
-    if (agencyInfo.ID == id) {
-      return agencyInfo.nick_name;
-    }
-  }
-  return id;
-}
-
 // 查询
 const getTableData = async () => {
-  const table = await getMerchantInfoList({page: page.value, pageSize: pageSize.value, ...searchInfo.value})
+  const table = await getAgencyInfoList({page: page.value, pageSize: pageSize.value, ...searchInfo.value})
   if (table.code === 0) {
     tableData.value = table.data.list
     total.value = table.data.total
@@ -360,15 +280,7 @@ const getTableData = async () => {
   }
 }
 
-const getAgencyDataList = async () => {
-  const table = await getAgencyInfoList({page: 0, pageSize: 100})
-  if (table.code === 0) {
-    agencyList.value = table.data.list
-  }
-}
-
 getTableData()
-getAgencyDataList()
 
 // ============== 表格控制部分结束 ===============
 
@@ -387,6 +299,17 @@ const handleSelectionChange = (val) => {
   multipleSelection.value = val
 }
 
+const updateAgencyInfoRow = async (row) => {
+  let res = await updateAgencyInfo(row)
+  if (res.code === 0) {
+    let desc = row.enable === 1 ? "启用" : "禁用";
+    ElMessage({
+      type: 'success',
+      message: desc + '成功'
+    })
+  }
+}
+
 // 删除行
 const deleteRow = (row) => {
   ElMessageBox.confirm('确定要删除吗?', '提示', {
@@ -394,7 +317,7 @@ const deleteRow = (row) => {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(() => {
-    deleteMerchantInfoFunc(row)
+    deleteAgencyInfoFunc(row)
   })
 }
 
@@ -417,7 +340,7 @@ const onDelete = async () => {
     multipleSelection.value.map(item => {
       IDs.push(item.ID)
     })
-    const res = await deleteMerchantInfoByIds({IDs})
+    const res = await deleteAgencyInfoByIds({IDs})
     if (res.code === 0) {
       ElMessage({
         type: 'success',
@@ -434,41 +357,20 @@ const onDelete = async () => {
 // 行为控制标记（弹窗内部需要增还是改）
 const type = ref('')
 
-const refreshMerchantInfoApiKey = async (row) => {
-  const res = await refreshMerchantApiKey({mchNo: row.mch_no})
-  if (res.code === 0) {
-    ElMessage({
-      type: 'success',
-      message: '刷新成功'
-    })
-    formData.value.api_key = res.data.apiKey;
-  }
-}
-
 // 更新行
-const updateMerchantInfoFunc = async (row) => {
-  const res = await findMerchantInfo({ID: row.ID})
+const updateAgencyInfoFunc = async (row) => {
+  const res = await findAgencyInfo({ID: row.ID})
   type.value = 'update'
   if (res.code === 0) {
-    formData.value = res.data.remerchantInfo
+    formData.value = res.data.reagency_info
     dialogFormVisible.value = true
   }
 }
 
-const updateMerchantInfoRow = async (row) => {
-  let res = await updateMerchantInfo(row)
-  if (res.code === 0) {
-    let desc = row.enable === 1 ? "启用" : "禁用";
-    ElMessage({
-      type: 'success',
-      message: desc + '成功'
-    })
-  }
-}
 
 // 删除行
-const deleteMerchantInfoFunc = async (row) => {
-  const res = await deleteMerchantInfo({ID: row.ID})
+const deleteAgencyInfoFunc = async (row) => {
+  const res = await deleteAgencyInfo({ID: row.ID})
   if (res.code === 0) {
     ElMessage({
       type: 'success',
@@ -494,16 +396,10 @@ const openDialog = () => {
 const closeDialog = () => {
   dialogFormVisible.value = false
   formData.value = {
-    mch_no: '',
-    mch_acc: '',
+    account: '',
     nick_name: '',
-    agency_id: '',
-    remark: '',
-    api_key: '',
     balance: 0,
-    enable: 2,
-    last_login: null,
-    login_ip: '',
+    enable: 0,
   }
 }
 // 弹窗确定
@@ -513,13 +409,13 @@ const enterDialog = async () => {
     let res
     switch (type.value) {
       case 'create':
-        res = await createMerchantInfo(formData.value)
+        res = await createAgencyInfo(formData.value)
         break
       case 'update':
-        res = await updateMerchantInfo(formData.value)
+        res = await updateAgencyInfo(formData.value)
         break
       default:
-        res = await createMerchantInfo(formData.value)
+        res = await createAgencyInfo(formData.value)
         break
     }
     if (res.code === 0) {

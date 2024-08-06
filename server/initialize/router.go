@@ -84,6 +84,7 @@ func Routers() *gin.Engine {
 	{
 		merchantRouter := router.RouterGroupApp.Merchant
 		merchantRouter.InitMerchantInfoRouter(PrivateGroup, PublicGroup)
+		merchantRouter.InitAgencyInfoRouter(PrivateGroup, PublicGroup)
 	}
 	{
 		paymentRouter := router.RouterGroupApp.Payment

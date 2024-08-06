@@ -80,6 +80,15 @@ export const findMerchantInfo = (params) => {
   })
 }
 
+export const refreshMerchantApiKey = (params) => {
+  return service({
+    url: '/merchantInfo/refreshMerchantApiKey',
+    method: 'get',
+    params
+  })
+}
+
+
 // @Tags MerchantInfo
 // @Summary 分页获取商户信息列表
 // @Security ApiKeyAuth

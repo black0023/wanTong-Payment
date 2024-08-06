@@ -2,17 +2,17 @@
   <div>
     <div class="gva-form-box">
       <el-form :model="formData" ref="elFormRef" label-position="right" :rules="rule" label-width="80px">
-        <el-form-item label="商户号:" prop="mch_no">
+        <el-form-item label="商户号:" prop="mch_no" :v-if="type!=='create'">
           <el-input v-model="formData.mch_no" :clearable="true"  placeholder="请输入商户号" />
        </el-form-item>
         <el-form-item label="商户账号:" prop="mch_acc">
           <el-input v-model="formData.mch_acc" :clearable="true"  placeholder="请输入商户账号" />
        </el-form-item>
-        <el-form-item label="密码:" prop="password">
-          <el-input v-model="formData.password" :clearable="true"  placeholder="请输入密码" />
-       </el-form-item>
         <el-form-item label="昵称:" prop="nick_name">
           <el-input v-model="formData.nick_name" :clearable="true"  placeholder="请输入昵称" />
+       </el-form-item>
+        <el-form-item label="上级代理:" prop="agency_id">
+          <el-input v-model="formData.agency_id" :clearable="true"  placeholder="请输入上级代理" />
        </el-form-item>
         <el-form-item label="备注:" prop="remark">
           <el-input v-model="formData.remark" :clearable="true"  placeholder="请输入备注" />
@@ -65,13 +65,13 @@ const type = ref('')
 const formData = ref({
             mch_no: '',
             mch_acc: '',
-            password: '',
             nick_name: '',
+            agency_id: '',
             remark: '',
             api_key: '',
             balance: 0,
-            enable: false,
-            last_login: new Date(),
+            enable: 1,
+            last_login: null,
             login_ip: '',
         })
 // 验证规则
@@ -87,6 +87,11 @@ const rule = reactive({
                    trigger: ['input','blur'],
                }],
                nick_name : [{
+                   required: true,
+                   message: '',
+                   trigger: ['input','blur'],
+               }],
+               agency_id : [{
                    required: true,
                    message: '',
                    trigger: ['input','blur'],
