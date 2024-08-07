@@ -26,3 +26,4 @@ INSERT INTO gva.sys_dictionaries (id, created_at, updated_at, deleted_at, name, 
 INSERT INTO gva.sys_dictionaries (id, created_at, updated_at, deleted_at, name, type, status, `desc`) VALUES (10, '2024-08-01 17:12:00.306', '2024-08-01 17:29:26.125', null, '调用模板参数类型', 'templateFieldType', 1, '调用模板参数类型');
 INSERT INTO gva.sys_dictionaries (id, created_at, updated_at, deleted_at, name, type, status, `desc`) VALUES (11, '2024-08-01 17:32:35.208', '2024-08-01 17:32:35.208', '2024-08-01 17:32:58.282', '回调模板参数类型', 'callbackFieldType', 1, '回调模板参数类型');
 INSERT INTO gva.sys_dictionaries (id, created_at, updated_at, deleted_at, name, type, status, `desc`) VALUES (12, '2024-08-01 17:37:59.984', '2024-08-01 17:37:59.984', null, '模板数据类型', 'templateDataType', 1, '模板数据类型');
+INSERT INTO gva.sys_dictionaries (id, created_at, updated_at, deleted_at, name, type, status, `desc`) VALUES (13, '2024-08-05 16:51:16.822', '2024-08-05 18:40:49.225', null, '金额单位', 'amountType', 1, '金额类型');
