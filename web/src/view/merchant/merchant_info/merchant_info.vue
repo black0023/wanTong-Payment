@@ -207,26 +207,25 @@
           <el-button
               type="primary"
               icon="edit"
-              @click="addChannelParameter(configPayChannelList)"
+              @click="addChannelParameter(configPayProductList)"
           >新增支付通道
           </el-button>
         </div>
         <el-table
-            :data="configPayChannelList"
+            :data="configPayProductList"
             style="width: 100%; margin-top: 12px"
         >
           <el-table-column
               align="left"
               prop="type"
               label="支付产品"
-              width="180"
+              width="230"
           >
             <template #default="scope">
-
               <el-select v-model="scope.row.pay_channel" placeholder="请选择支付产品" :clearable="true"
-                         @change="onPayChannelChange(scope.row.pay_channel, scope.$index)">
-                <el-option v-for="(item,key) in payChannelList" :key="key"
-                           :label="item.channel_name+'-'+item.payment_code"
+                         @change="onPayProductChange(scope.row.pay_channel, scope.$index)">
+                <el-option v-for="(item,key) in payProductList" :key="key"
+                           :label="item.pay_name+'-'+item.pay_code"
                            :value="item.ID.toString()"/>
               </el-select>
             </template>
@@ -235,7 +234,7 @@
               align="left"
               prop="type"
               label="通道编码"
-              width="150"
+              width="120"
           >
             <template #default="scope">
               <el-input v-model="scope.row.pay_code" disabled :clearable="true"/>
@@ -275,7 +274,7 @@
                 <el-button
                     type="danger"
                     icon="delete"
-                    @click="deleteChannelParameter(configPayChannelList, scope.$index)"
+                    @click="deleteChannelParameter(configPayProductList, scope.$index)"
                 >删除
                 </el-button>
               </div>
@@ -306,6 +305,10 @@ import {
 import {
   getMerchantChannelList, updateMerchantChannelList
 } from "@/api/merchant/merchant_channel";
+
+import {
+  getPayProductList
+} from "@/api/payment/pay_product";
 
 
 // 全量引入格式化工具 请按需保留
@@ -430,8 +433,8 @@ const tableData = ref([])
 const searchInfo = ref({})
 
 const agencyList = ref([]);
-const payChannelList = ref([])
-const configPayChannelList = ref([])
+const payProductList = ref([])
+const configPayProductList = ref([])
 
 // 新增参数
 const addChannelParameter = (fieldList) => {
@@ -451,15 +454,15 @@ const deleteChannelParameter = (parameters, index) => {
   parameters.splice(index, 1)
 }
 
-const onPayChannelChange = (channelId, index) => {
-  let payChannel = getPayChannelData(channelId)
-  configPayChannelList.value[index].pay_channel = channelId.toString()
-  configPayChannelList.value[index].pay_code = payChannel.payment_code
+const onPayProductChange = (channelId, index) => {
+  let payChannel = getPayProductData(channelId)
+  configPayProductList.value[index].pay_channel = channelId.toString()
+  configPayProductList.value[index].pay_code = payChannel.pay_code
 }
 
-const getPayChannelData = (channelId) => {
-  for (let i = 0; i < payChannelList.value.length; i++) {
-    let payChannel = payChannelList.value[i]
+const getPayProductData = (channelId) => {
+  for (let i = 0; i < payProductList.value.length; i++) {
+    let payChannel = payProductList.value[i]
     if (payChannel.ID == channelId) {
       return payChannel
     }
@@ -526,24 +529,24 @@ const getAgencyDataList = async () => {
   }
 }
 
-const getPayChannelDataList = async () => {
-  const table = await getPayChannelList({page: 0, pageSize: 100})
+const getPayProductDataList = async () => {
+  const table = await getPayProductList({page: 0, pageSize: 100})
   if (table.code === 0) {
-    payChannelList.value = table.data.list
+    payProductList.value = table.data.list
   }
 }
 
-const getMerchantChannelDataList = async () => {
+const getMerchantProductDataList = async () => {
   const table = await getMerchantChannelList({page: 0, pageSize: 100})
   if (table.code === 0) {
-    configPayChannelList.value = table.data.list
+    configPayProductList.value = table.data.list
   }
 }
 
 
 getTableData()
 getAgencyDataList()
-getPayChannelDataList()
+getPayProductDataList()
 
 // ============== 表格控制部分结束 ===============
 
@@ -639,7 +642,7 @@ const updateMerchantChannelFunc = async (row) => {
 
     const table = await getMerchantChannelList({page: 0, pageSize: 100, mch_no: formData.value.mch_no})
     if (table.code === 0) {
-      configPayChannelList.value = table.data.list
+      configPayProductList.value = table.data.list
     }
   }
 }
@@ -682,7 +685,7 @@ const openChannelDialog = () => {
 
 const closeChannelDialog = () => {
   dialogChannelFormVisible.value = false
-  configPayChannelList.value = []
+  configPayProductList.value = []
 }
 
 // 打开弹窗
@@ -711,7 +714,7 @@ const closeDialog = () => {
 const enterChannelDialog = async () => {
   let postObj = {
     mch_no: formData.value.mch_no,
-    channel_list: configPayChannelList.value
+    channel_list: configPayProductList.value
   }
   let res = await updateMerchantChannelList(postObj)
   if (res.code === 0) {

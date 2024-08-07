@@ -25,7 +25,7 @@
         </el-form-item>
         <el-form-item label="支付通道" prop="pay_channel">
           <el-select v-model="searchInfo.pay_channel" placeholder="请选择支付通道" :clearable="true">
-            <el-option v-for="(item,key) in payChannelList" :key="key" :label="item.channel_name+'-'+item.payment_code"
+            <el-option v-for="(item,key) in payProduct" :key="key" :label="item.pay_name+'-'+item.pay_code"
                        :value="item.ID"/>
           </el-select>
         </el-form-item>
@@ -57,9 +57,11 @@
         <el-table-column type="selection" width="55"/>
 
         <el-table-column align="left" label="商户号" prop="mch_no" width="120"/>
-        <el-table-column align="left" label="支付通道" prop="pay_channel" width="120"/>
-        <el-table-column align="left" label="通道编码" prop="pay_code" width="120"/>
-        <el-table-column align="left" label="通道费率(%)" prop="fee" width="120"/>
+        <el-table-column align="left" label="支付产品" prop="pay_channel" width="180">
+          <template #default="scope">{{ getPayProductNameById(scope.row.pay_channel) }}</template>
+        </el-table-column>
+        <el-table-column align="left" label="产品编码" prop="pay_code" width="120"/>
+        <el-table-column align="left" label="产品费率(%)" prop="fee" width="120"/>
         <el-table-column align="left" label="启用" prop="enable" width="80">
           <template #default="scope">
             <el-switch
@@ -110,18 +112,18 @@
         <el-form-item label="商户号:" prop="mch_no">
           <el-input v-model="formData.mch_no" :clearable="true" disabled placeholder="请输入商户号"/>
         </el-form-item>
-        <el-form-item label="支付通道:" prop="pay_channel">
-          <el-select v-model="formData.pay_channel" placeholder="请选择支付通道" style="width:100%" :clearable="true"
+        <el-form-item label="支付产品:" prop="pay_channel">
+          <el-select v-model="formData.pay_channel" placeholder="请选择支付产品" style="width:100%" :clearable="true"
                      @change="onPayChannelChange">
-            <el-option v-for="(item,key) in payChannelList" :key="key"
-                       :label="item.channel_name + '-' + item.payment_code"
+            <el-option v-for="(item,key) in payProduct" :key="key"
+                       :label="item.pay_name + '-' + item.pay_code"
                        :value="item.ID.toString()"/>
           </el-select>
         </el-form-item>
-        <el-form-item label="通道编码:" prop="pay_code">
-          <el-input v-model="formData.pay_code" :clearable="true" placeholder="请输入通道编码" disabled/>
+        <el-form-item label="产品编码:" prop="pay_code">
+          <el-input v-model="formData.pay_code" :clearable="true" placeholder="请输入产品编码" disabled/>
         </el-form-item>
-        <el-form-item label="通道费率(%):" prop="fee">
+        <el-form-item label="产品费率(%):" prop="fee">
           <el-input-number v-model="formData.fee" style="width:100%" :precision="2" :clearable="true"/>
         </el-form-item>
         <el-form-item label="启用:" prop="enable">
@@ -148,8 +150,8 @@ import {
 } from '@/api/merchant/merchant_channel'
 
 import {
-  getPayChannelList
-} from "@/api/payment/pay_channel";
+  getPayProductList
+} from "@/api/payment/pay_product";
 
 // 全量引入格式化工具 请按需保留
 import {
@@ -163,8 +165,6 @@ import {
 } from '@/utils/format'
 import {ElMessage, ElMessageBox} from 'element-plus'
 import {ref, reactive} from 'vue'
-import {getPayProductList} from "@/api/payment/pay_product";
-import {updateMerchantInfo} from "@/api/merchant/merchant_info";
 
 defineOptions({
   name: 'MerchantChannel'
@@ -257,7 +257,7 @@ const pageSize = ref(10)
 const tableData = ref([])
 const searchInfo = ref({})
 
-const payChannelList = ref([])
+const payProduct = ref([])
 
 // 重置
 const onReset = () => {
@@ -276,20 +276,30 @@ const onSubmit = () => {
 }
 
 const onPayChannelChange = (val) => {
-  let payChannel = getPayChannelData(val)
+  let payChannel = getPayProduct(val)
   if (payChannel != null) {
-    formData.value.pay_code = payChannel.payment_code
+    formData.value.pay_code = payChannel.pay_code
   }
 }
 
-const getPayChannelData = (channelId) => {
-  for (let i = 0; i < payChannelList.value.length; i++) {
-    let payChannel = payChannelList.value[i]
+const getPayProduct = (channelId) => {
+  for (let i = 0; i < payProduct.value.length; i++) {
+    let payChannel = payProduct.value[i]
     if (payChannel.ID == channelId) {
       return payChannel
     }
   }
   return null
+}
+
+const getPayProductNameById = (id) => {
+  for (let i = 0; i < payProduct.value.length; i++) {
+    let template = payProduct.value[i];
+    if (template.ID == id) {
+      return template.pay_name;
+    }
+  }
+  return id;
 }
 
 // 分页
@@ -315,10 +325,10 @@ const getTableData = async () => {
   }
 }
 
-const getPayChannelDataList = async () => {
-  const table = await getPayChannelList({page: 0, pageSize: 100})
+const getPayProductDataList = async () => {
+  const table = await getPayProductList({page: 0, pageSize: 100})
   if (table.code === 0) {
-    payChannelList.value = table.data.list
+    payProduct.value = table.data.list
   }
 }
 
@@ -334,7 +344,7 @@ const updateMerchantChannelDataRow = async (row) => {
 }
 
 getTableData()
-getPayChannelDataList()
+getPayProductDataList()
 
 // ============== 表格控制部分结束 ===============
 
