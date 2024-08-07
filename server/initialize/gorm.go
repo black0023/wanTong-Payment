@@ -54,7 +54,7 @@ func RegisterTables() {
 		example.ExaFile{},
 		example.ExaCustomer{},
 		example.ExaFileChunk{},
-		example.ExaFileUploadAndDownload{}, payment.PayProduct{}, payment.PayTemplate{}, payment.PayChannel{}, merchant.AgencyInfo{}, merchant.MerchantInfo{},
+		example.ExaFileUploadAndDownload{}, payment.PayProduct{}, payment.PayTemplate{}, payment.PayChannel{}, merchant.AgencyInfo{}, merchant.MerchantInfo{}, merchant.MerchantChannel{},
 	)
 	if err != nil {
 		global.GVA_LOG.Error("register table failed", zap.Error(err))

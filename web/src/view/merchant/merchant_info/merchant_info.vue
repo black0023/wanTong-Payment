@@ -89,6 +89,10 @@
         </el-table-column>
         <el-table-column align="left" label="操作" fixed="right" min-width="240">
           <template #default="scope">
+            <el-button type="primary" link icon="money" class="table-button"
+                       @click="updateMerchantChannelFunc(scope.row)">
+              通道费率
+            </el-button>
             <el-button type="primary" link icon="edit" class="table-button" @click="updateMerchantInfoFunc(scope.row)">
               变更
             </el-button>
@@ -166,6 +170,121 @@
         </el-form-item>
       </el-form>
     </el-drawer>
+
+
+    <el-drawer destroy-on-close size="800" v-model="dialogChannelFormVisible" :show-close="false"
+               :before-close="closeChannelDialog">
+      <template #header>
+        <div class="flex justify-between items-center">
+          <span class="text-lg">通道费率</span>
+          <div>
+            <el-button type="primary" @click="enterChannelDialog">确 定</el-button>
+            <el-button @click="closeChannelDialog">取 消</el-button>
+          </div>
+        </div>
+      </template>
+
+      <el-form :model="formData" label-position="top" ref="elFormRef" :rules="rule" label-width="80px">
+        <el-form-item label="商户号:" prop="mch_no" v-if="type!=='create'">
+          <el-input disabled v-model="formData.mch_no" :clearable="true" placeholder="请输入商户号"/>
+        </el-form-item>
+        <el-form-item label="商户账号:" prop="mch_acc">
+          <el-input v-model="formData.mch_acc" disabled :clearable="true"
+                    placeholder="请输入商户账号"/>
+        </el-form-item>
+        <el-form-item label="昵称:" prop="nick_name">
+          <el-input v-model="formData.nick_name" disabled :clearable="true" placeholder="请输入昵称"/>
+        </el-form-item>
+        <el-form-item label="上级代理:" prop="agency_id">
+          <el-select v-model="formData.agency_id" disabled
+                     placeholder="请选择上级代理" style="width:100%" :clearable="true">
+            <el-option v-for="(item,key) in agencyList" :key="key" :label="item.account+'-'+item.nick_name"
+                       :value="item.ID.toString()"/>
+          </el-select>
+        </el-form-item>
+
+        <div class="flex items-center gap-2" style="margin-top: 30px">
+          <el-button
+              type="primary"
+              icon="edit"
+              @click="addChannelParameter(configPayChannelList)"
+          >新增支付通道
+          </el-button>
+        </div>
+        <el-table
+            :data="configPayChannelList"
+            style="width: 100%; margin-top: 12px"
+        >
+          <el-table-column
+              align="left"
+              prop="type"
+              label="支付产品"
+              width="180"
+          >
+            <template #default="scope">
+
+              <el-select v-model="scope.row.pay_channel" placeholder="请选择支付产品" :clearable="true"
+                         @change="onPayChannelChange(scope.row.pay_channel, scope.$index)">
+                <el-option v-for="(item,key) in payChannelList" :key="key"
+                           :label="item.channel_name+'-'+item.payment_code"
+                           :value="item.ID.toString()"/>
+              </el-select>
+            </template>
+          </el-table-column>
+          <el-table-column
+              align="left"
+              prop="type"
+              label="通道编码"
+              width="150"
+          >
+            <template #default="scope">
+              <el-input v-model="scope.row.pay_code" disabled :clearable="true"/>
+            </template>
+          </el-table-column>
+          <el-table-column
+              align="left"
+              prop="type"
+              label="通道费率(%)"
+              width="180"
+          >
+            <template #default="scope">
+              <el-input-number v-model="scope.row.fee" style="width:100%" :precision="2" :clearable="true"/>
+            </template>
+          </el-table-column>
+
+          <el-table-column
+              align="left"
+              prop="type"
+              label="启用"
+              width="80"
+          >
+            <template #default="scope">
+
+              <el-switch
+                  v-model="scope.row.enable"
+                  inline-prompt
+                  :active-value="1"
+                  :inactive-value="2"
+              />
+            </template>
+          </el-table-column>
+
+          <el-table-column align="left">
+            <template #default="scope">
+              <div>
+                <el-button
+                    type="danger"
+                    icon="delete"
+                    @click="deleteChannelParameter(configPayChannelList, scope.$index)"
+                >删除
+                </el-button>
+              </div>
+            </template>
+          </el-table-column>
+        </el-table>
+
+      </el-form>
+    </el-drawer>
   </div>
 </template>
 
@@ -184,6 +303,11 @@ import {
   getAgencyInfoList
 } from "@/api/merchant/agency_info";
 
+import {
+  getMerchantChannelList, updateMerchantChannelList
+} from "@/api/merchant/merchant_channel";
+
+
 // 全量引入格式化工具 请按需保留
 import {
   getDictFunc,
@@ -196,8 +320,7 @@ import {
 } from '@/utils/format'
 import {ElMessage, ElMessageBox} from 'element-plus'
 import {ref, reactive} from 'vue'
-import {getPayProductList} from "@/api/payment/pay_product";
-import {updatePayChannel} from "@/api/payment/pay_channel";
+import {getPayChannelList} from "@/api/payment/pay_channel";
 
 defineOptions({
   name: 'MerchantInfo'
@@ -307,6 +430,42 @@ const tableData = ref([])
 const searchInfo = ref({})
 
 const agencyList = ref([]);
+const payChannelList = ref([])
+const configPayChannelList = ref([])
+
+// 新增参数
+const addChannelParameter = (fieldList) => {
+  if (!fieldList) {
+    fieldList = []
+  }
+  fieldList.push({
+    pay_channel: '',
+    pay_code: '',
+    fee: 0,
+    enable: 0,
+  })
+}
+
+// 删除参数
+const deleteChannelParameter = (parameters, index) => {
+  parameters.splice(index, 1)
+}
+
+const onPayChannelChange = (channelId, index) => {
+  let payChannel = getPayChannelData(channelId)
+  configPayChannelList.value[index].pay_channel = channelId.toString()
+  configPayChannelList.value[index].pay_code = payChannel.payment_code
+}
+
+const getPayChannelData = (channelId) => {
+  for (let i = 0; i < payChannelList.value.length; i++) {
+    let payChannel = payChannelList.value[i]
+    if (payChannel.ID == channelId) {
+      return payChannel
+    }
+  }
+  return null
+}
 
 // 重置
 const onReset = () => {
@@ -367,8 +526,24 @@ const getAgencyDataList = async () => {
   }
 }
 
+const getPayChannelDataList = async () => {
+  const table = await getPayChannelList({page: 0, pageSize: 100})
+  if (table.code === 0) {
+    payChannelList.value = table.data.list
+  }
+}
+
+const getMerchantChannelDataList = async () => {
+  const table = await getMerchantChannelList({page: 0, pageSize: 100})
+  if (table.code === 0) {
+    configPayChannelList.value = table.data.list
+  }
+}
+
+
 getTableData()
 getAgencyDataList()
+getPayChannelDataList()
 
 // ============== 表格控制部分结束 ===============
 
@@ -455,6 +630,20 @@ const updateMerchantInfoFunc = async (row) => {
   }
 }
 
+const updateMerchantChannelFunc = async (row) => {
+  const res = await findMerchantInfo({ID: row.ID})
+  type.value = 'update'
+  if (res.code === 0) {
+    formData.value = res.data.remerchantInfo
+    dialogChannelFormVisible.value = true
+
+    const table = await getMerchantChannelList({page: 0, pageSize: 100, mch_no: formData.value.mch_no})
+    if (table.code === 0) {
+      configPayChannelList.value = table.data.list
+    }
+  }
+}
+
 const updateMerchantInfoRow = async (row) => {
   let res = await updateMerchantInfo(row)
   if (res.code === 0) {
@@ -483,6 +672,18 @@ const deleteMerchantInfoFunc = async (row) => {
 
 // 弹窗控制标记
 const dialogFormVisible = ref(false)
+// 通道费率弹窗控制标记
+const dialogChannelFormVisible = ref(false);
+
+// 打开通道费率弹窗
+const openChannelDialog = () => {
+  dialogChannelFormVisible.value = true
+}
+
+const closeChannelDialog = () => {
+  dialogChannelFormVisible.value = false
+  configPayChannelList.value = []
+}
 
 // 打开弹窗
 const openDialog = () => {
@@ -507,6 +708,21 @@ const closeDialog = () => {
   }
 }
 // 弹窗确定
+const enterChannelDialog = async () => {
+  let postObj = {
+    mch_no: formData.value.mch_no,
+    channel_list: configPayChannelList.value
+  }
+  let res = await updateMerchantChannelList(postObj)
+  if (res.code === 0) {
+    ElMessage({
+      type: 'success',
+      message: '创建/更改成功'
+    })
+    closeChannelDialog()
+  }
+}
+
 const enterDialog = async () => {
   elFormRef.value?.validate(async (valid) => {
     if (!valid) return
