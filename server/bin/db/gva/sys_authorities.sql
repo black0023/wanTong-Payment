@@ -12,6 +12,6 @@ create table sys_authorities
         unique (authority_id)
 );
 
-INSERT INTO gva.sys_authorities (created_at, updated_at, deleted_at, authority_id, authority_name, parent_id, default_router) VALUES ('2024-07-25 12:18:13.451', '2024-08-07 10:37:35.010', null, 888, '普通用户', 0, 'dashboard');
+INSERT INTO gva.sys_authorities (created_at, updated_at, deleted_at, authority_id, authority_name, parent_id, default_router) VALUES ('2024-07-25 12:18:13.451', '2024-08-08 18:54:32.116', null, 888, '普通用户', 0, 'dashboard');
 INSERT INTO gva.sys_authorities (created_at, updated_at, deleted_at, authority_id, authority_name, parent_id, default_router) VALUES ('2024-07-25 12:18:13.451', '2024-07-25 12:18:13.639', null, 8881, '普通用户子角色', 888, 'dashboard');
 INSERT INTO gva.sys_authorities (created_at, updated_at, deleted_at, authority_id, authority_name, parent_id, default_router) VALUES ('2024-07-25 12:18:13.451', '2024-07-25 12:18:13.635', null, 9528, '测试角色', 0, 'dashboard');

@@ -61,3 +61,4 @@ INSERT INTO gva.sys_authority_menus (sys_base_menu_id, sys_authority_authority_i
 INSERT INTO gva.sys_authority_menus (sys_base_menu_id, sys_authority_authority_id) VALUES (55, 888);
 INSERT INTO gva.sys_authority_menus (sys_base_menu_id, sys_authority_authority_id) VALUES (56, 888);
 INSERT INTO gva.sys_authority_menus (sys_base_menu_id, sys_authority_authority_id) VALUES (57, 888);
+INSERT INTO gva.sys_authority_menus (sys_base_menu_id, sys_authority_authority_id) VALUES (59, 888);

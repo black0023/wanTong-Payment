@@ -15,3 +15,5 @@ create index idx_sys_auto_codes_deleted_at
 
 INSERT INTO gva.sys_auto_codes (id, created_at, updated_at, deleted_at, package_name, label, `desc`) VALUES (1, '2024-07-25 15:42:02.538', '2024-07-25 15:42:02.538', null, 'merchant', 'merchant', '商户模块');
 INSERT INTO gva.sys_auto_codes (id, created_at, updated_at, deleted_at, package_name, label, `desc`) VALUES (2, '2024-08-01 15:15:11.119', '2024-08-01 15:15:11.119', null, 'payment', 'payment', '支付模块');
+INSERT INTO gva.sys_auto_codes (id, created_at, updated_at, deleted_at, package_name, label, `desc`) VALUES (3, '2024-08-08 14:32:54.647', '2024-08-08 14:32:54.647', '2024-08-08 14:33:03.976', 'trade', '交易模块', '');
+INSERT INTO gva.sys_auto_codes (id, created_at, updated_at, deleted_at, package_name, label, `desc`) VALUES (4, '2024-08-08 14:33:14.813', '2024-08-08 14:33:14.813', null, 'trade', 'trade', '交易模块');
