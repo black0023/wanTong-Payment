@@ -94,6 +94,10 @@ func Routers() *gin.Engine {
 		paymentRouter.InitPayChannelRouter(PrivateGroup, PublicGroup)
 
 	}
+	{
+		tradeRouter := router.RouterGroupApp.Trade
+		tradeRouter.InitTradeOrderRouter(PrivateGroup, PublicGroup)
+	}
 
 	global.GVA_LOG.Info("router register success")
 	return Router
