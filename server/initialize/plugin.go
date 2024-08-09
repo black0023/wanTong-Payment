@@ -2,6 +2,7 @@ package initialize
 
 import (
 	"fmt"
+	"github.com/flipped-aurora/gin-vue-admin/server/plugin/organization"
 
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/plugin/email"
@@ -18,6 +19,7 @@ func PluginInit(group *gin.RouterGroup, Plugin ...plugin.Plugin) {
 
 func InstallPlugin(PrivateGroup *gin.RouterGroup, PublicRouter *gin.RouterGroup) {
 	fmt.Println("无鉴权插件安装==》", PublicRouter)
+	PluginInit(PublicRouter, organization.CreateOrganizationPlug())
 
 	fmt.Println("鉴权插件安装==》", PrivateGroup)
 	//  添加跟角色挂钩权限的插件 示例 本地示例模式于在线仓库模式注意上方的import 可以自行切换 效果相同
